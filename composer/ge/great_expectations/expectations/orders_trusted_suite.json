@@ -1,0 +1,46 @@
+{
+  "expectation_suite_name": "orders_trusted_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_columns_to_match_set",
+      "kwargs": {
+        "column_set": [
+          "event_id",
+          "event_type",
+          "event_version",
+          "source",
+          "occurred_at",
+          "customer_id",
+          "order_id",
+          "total_amount",
+          "currency",
+          "payment_method",
+          "items",
+          "pii_flags",
+          "trace_id",
+          "correlation_id"
+        ]
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "event_id"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "total_amount",
+        "min_value": 0
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "event_version",
+        "regex": "^v[0-9]+$"
+      }
+    }
+  ]
+}

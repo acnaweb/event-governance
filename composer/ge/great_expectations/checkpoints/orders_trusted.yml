@@ -1,0 +1,16 @@
+name: orders_trusted
+config_version: 1.0
+template_name: null
+module_name: great_expectations.checkpoint
+class_name: SimpleCheckpoint
+validations:
+  - batch_request:
+      datasource_name: bq
+      data_connector_name: default_runtime_data_connector_name
+      data_asset_name: orders_trusted
+      runtime_parameters:
+        query: |
+          SELECT * FROM `${project}.${trusted_dataset}.order_v1` WHERE occurred_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 3 HOUR)
+      batch_identifiers:
+        default_identifier: "orders_trusted_recent"
+    expectation_suite_name: orders_trusted_suite

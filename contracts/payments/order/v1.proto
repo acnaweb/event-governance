@@ -1,0 +1,25 @@
+syntax = "proto3";
+package payments.checkout.order.v1;
+
+message OrderItem {
+  string sku = 1;
+  int32 quantity = 2;
+  double unit_price = 3;
+}
+
+message OrderEvent {
+  string event_id = 1;          // UUID para deduplicação
+  string event_type = 2;        // ORDER_CREATED|ORDER_UPDATED|ORDER_CANCELLED
+  string event_version = 3;     // v1
+  string source = 4;            // sistema emissor
+  string trace_id = 5;
+  string correlation_id = 6;
+  string occurred_at = 7;       // UTC RFC3339
+  string customer_id = 8;
+  string order_id = 9;
+  double total_amount = 10;
+  string currency = 11;
+  string payment_method = 12;   // opcional
+  map<string, string> pii_flags = 13;
+  repeated OrderItem items = 14;
+}

@@ -1,0 +1,29 @@
+{
+  "event_id": "c1b6d9f6-52f6-4b6a-9f50-2b7c2f6f1a11",
+  "event_type": "ORDER_CREATED",
+  "event_version": "v1",
+  "source": "web.checkout",
+  "trace_id": "abc-123",
+  "correlation_id": "cart-999",
+  "occurred_at": "2025-08-24T21:00:00Z",
+  "customer_id": "CUST_001",
+  "order_id": "ORD_1001",
+  "total_amount": 349.9,
+  "currency": "BRL",
+  "payment_method": "credit_card",
+  "items": [
+    {
+      "sku": "SKU-AAA",
+      "quantity": 1,
+      "unit_price": 199.9
+    },
+    {
+      "sku": "SKU-BBB",
+      "quantity": 1,
+      "unit_price": 150.0
+    }
+  ],
+  "pii_flags": {
+    "customer_id": "confidential"
+  }
+}

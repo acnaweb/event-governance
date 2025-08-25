@@ -1,0 +1,111 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "namespace": "payments.checkout.order.v1",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string",
+      "doc": "UUID para deduplica\u00e7\u00e3o"
+    },
+    {
+      "name": "event_type",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": [
+          "ORDER_CREATED",
+          "ORDER_UPDATED",
+          "ORDER_CANCELLED"
+        ]
+      }
+    },
+    {
+      "name": "event_version",
+      "type": "string"
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "doc": "sistema emissor"
+    },
+    {
+      "name": "trace_id",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "correlation_id",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "occurred_at",
+      "type": "string",
+      "doc": "UTC RFC3339"
+    },
+    {
+      "name": "customer_id",
+      "type": "string"
+    },
+    {
+      "name": "order_id",
+      "type": "string"
+    },
+    {
+      "name": "total_amount",
+      "type": "double"
+    },
+    {
+      "name": "currency",
+      "type": "string"
+    },
+    {
+      "name": "payment_method",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "items",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "OrderItem",
+          "type": "record",
+          "fields": [
+            {
+              "name": "sku",
+              "type": "string"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "double"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pii_flags",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "classifica\u00e7\u00e3o de sensibilidade por campo"
+    }
+  ]
+}
