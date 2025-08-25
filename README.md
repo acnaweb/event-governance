@@ -39,3 +39,6 @@ Makefile                    # Atalhos
 5. Rode o **MERGE** e a **validação GE** (via DAG).
 
 > Consulte cada subpasta para detalhes específicos.
+
+
+![](docs/sequence.png)

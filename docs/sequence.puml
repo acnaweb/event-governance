@@ -1,0 +1,64 @@
+@startuml sequence
+title Diagrama de Sequência — Governança de Eventos (GCP: Pub/Sub → BigQuery)
+autonumber
+skinparam participantStyle rectangle
+skinparam sequence {
+  ArrowThickness 1
+  LifeLineBorderColor #555555
+  ParticipantBorderColor #555555
+  ParticipantBackgroundColor #F8F8F8
+}
+
+actor "Produtor" as Producer
+participant "Pub/Sub Topic\npayments.checkout.order.v1" as Topic
+participant "Pub/Sub DLQ" as DLQ
+participant "Dataflow (Beam)\nStreaming Job" as DF
+database "BigQuery RAW\npayments_raw.order_v1_raw" as BQRaw
+participant "Composer (Airflow)\nDAG payments_order_streaming" as AF
+participant "BigQuery MERGE\n(dedupe/promote)" as MergeJob
+database "BigQuery TRUSTED\npayments_trusted.order_v1" as BQTrusted
+participant "Great Expectations\nCheckpoint orders_trusted" as GE
+participant "Data Catalog\nPolicy Tags / Glossary" as Catalog
+participant "OpenLineage" as OL
+collections "Authorized Views\n(RLS/CLS/Masking)" as Views
+actor "Consumidor" as Consumer
+
+== Publicação & Validação ==
+Producer -> Topic: Publica evento JSON (Avro/Proto)\n(event_id, event_type, event_version, occurred_at, ...)
+Topic -> Topic: Valida contra Schema Enforced
+alt Esquema inválido
+  Topic -> DLQ: Encaminha evento inválido\n(c/ metadata para auditoria)
+  DLQ -> AF: Alerta/Observabilidade
+else Esquema válido
+  Topic -[#gray,dashed]> DF: Mensagem disponível para consumo
+  DF -> DF: Parse/validação mínima\n(normaliza campos opcionais)
+  DF -> BQRaw: Append (WriteToBigQuery)\nwrite_metadata=true
+  note right of BQRaw
+    Partition: occurred_at (DAY)\n
+    Cluster: source, order_id\n
+    Labels: FinOps/Owner/Env
+  end note
+end
+
+== Orquestração & Promoção ==
+AF -> DF: Garantir job streaming ativo (start/monitor)
+AF -> MergeJob: Executa SQL MERGE (dedupe)\nmerge_orders_trusted.sql
+MergeJob -> BQTrusted: Upsert por event_id\n(keep latest occurred_at)
+note right of BQTrusted
+  Policy Tags (PII/PCI)\n
+  RLS/CLS quando aplicável
+end note
+
+== Qualidade & Linhagem ==
+AF -> GE: Executa checkpoint\norders_trusted
+GE -> BQTrusted: Valida Expectation Suite
+alt Validação falha
+  GE -> AF: Fails task + Alerta
+else Validação ok
+  BQTrusted -> Views: Expor dados mascarados\n(Authorized Views)
+  AF -> Catalog: Atualiza metadados/glossário\n(policy tags/owners)
+  AF -> OL: Emite lineage run/eventos
+  Views -> Consumer: Consulta/consumo seguro
+end
+
+@enduml
